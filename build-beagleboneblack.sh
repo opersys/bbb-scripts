@@ -18,11 +18,11 @@ if [ $TARGET_PRODUCT != "beagleboneblack" -a $TARGET_PRODUCT != "beagleboneblack
 	exit
 fi
 
-#echo "Building $TARGET_PRODUCT using $CORES cpu cores"
-#echo ""
-#echo "Building kernel"
-#cd $ANDROID_BUILD_TOP/bb-kernel
-#if [ $? != 0 ]; then echo "ERROR"; exit; fi
+echo "Building $TARGET_PRODUCT using $CORES cpu cores"
+echo ""
+echo "Building kernel"
+cd $ANDROID_BUILD_TOP/bb-kernel
+if [ $? != 0 ]; then echo "ERROR"; exit; fi
 
 AUTO_BUILD=1 ./build_kernel.sh
 if [ $? != 0 ]; then echo "ERROR"; exit; fi
