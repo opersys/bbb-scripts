@@ -60,7 +60,7 @@ echo "Building U-Boot"
 cd $ANDROID_BUILD_TOP/u-boot
 # The Android prebuilt gcc fails to build U-Boot, so use the Linaro gcc which
 # was installed to build the ti-kernel
-CC=/home/neumann/Android/Transtex/9.0-BeagleBone/bb-kernel/dl/gcc-linaro-4.9.4-2017.01-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
+CC=$ANDROID_BUILD_TOP/../dl/gcc-linaro-4.9.4-2017.01-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
 make CROSS_COMPILE=$CC am335x_evm_config
 if [ $? != 0 ]; then echo "ERROR"; exit; fi
 make CROSS_COMPILE=$CC
