@@ -1,7 +1,5 @@
 #!/bin/bash
 
-DEVICE_DIR=device/beagleboard/beagleboneblack
-
 function version_gt() { test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" != "$1"; }
 
 # Format an SD card for Android on BeagelBone Black
@@ -13,11 +11,6 @@ if [ $# -ne 1 ]; then
 fi
 
 DRIVE=$1
-
-if [ x$TARGET_PRODUCT != "xbeagleboneblack" -a x$TARGET_PRODUCT != "xbeagleboneblack_sd" ]; then
-	echo "Please run 'lunch' and select beagleboneblack or beagleboneblack_sd"
-	exit
-fi
 
 # Check the drive exists in /sys/block
 if [ ! -e /sys/block/${DRIVE}/size ]; then
@@ -94,35 +87,35 @@ sudo mkdir -p /mnt/boot/dtbs/$UNAME
 
 mkimage -A arm -O linux -T ramdisk -d ${ANDROID_PRODUCT_OUT}/ramdisk.img uRamdisk
 if [ $? != 0 ]; then echo "ERROR"; exit; fi
-sudo cp u-boot/MLO /mnt
+sudo cp external/u-boot/MLO /mnt
 if [ $? != 0 ]; then echo "ERROR"; exit; fi
-sudo cp u-boot/u-boot.img /mnt
+sudo cp external/u-boot/u-boot.img /mnt
 if [ $? != 0 ]; then echo "ERROR"; exit; fi
 sudo cp uRamdisk /mnt/boot/initrd.img-$UNAME
 if [ $? != 0 ]; then echo "ERROR"; exit; fi
-sudo cp ${DEVICE_DIR}/uEnv.txt /mnt/boot/
-sudo mkenvimage -s 1024 -o/mnt/boot/uboot.env ${DEVICE_DIR}/uEnv.txt
+sudo cp ${ANDROID_PRODUCT_OUT}/uEnv.txt /mnt/boot/
+sudo mkenvimage -s 1024 -o/mnt/boot/uboot.env ${ANDROID_PRODUCT_OUT}/uEnv.txt
 if [ $? != 0 ]; then echo "ERROR"; exit; fi
-sudo cp bb-kernel/am335x-boneblack-android.dtb /mnt/boot/dtbs/$UNAME
+sudo cp $ANDROID_PRODUCT_OUT/am335x-boneblack-android.dtb /mnt/boot/dtbs/$UNAME
 if [ $? != 0 ]; then echo "ERROR"; exit; fi
-sudo cp bb-kernel/KERNEL/arch/arm/boot/zImage /mnt/boot/vmlinuz-$UNAME
+sudo cp $ANDROID_PRODUCT_OUT/zImage /mnt/boot/vmlinuz-$UNAME
 if [ $? != 0 ]; then echo "ERROR"; exit; fi
 sudo umount /mnt
 
 # Copy disk images
 
 echo "Writing system"
-sudo dd if=${ANDROID_PRODUCT_OUT}/system.img of=$SYSTEM_PART bs=1M && sync
+sudo dd if=${ANDROID_PRODUCT_OUT}/system.img of=$SYSTEM_PART bs=1M status=progress && sync
 if [ $? != 0 ]; then echo "ERROR"; exit; fi
 sudo e2label $SYSTEM_PART system
 
 echo "Writing userdata (takes a long time)"
-sudo dd if=${ANDROID_PRODUCT_OUT}/userdata.img of=$USER_PART bs=1M && sync
+sudo dd if=${ANDROID_PRODUCT_OUT}/userdata.img of=$USER_PART bs=1M status=progress && sync
 if [ $? != 0 ]; then echo "ERROR"; exit; fi
 sudo e2label $USER_PART userdata
 
 echo "Writing cache"
-sudo dd if=${ANDROID_PRODUCT_OUT}/cache.img of=$CACHE_PART bs=1M && sync
+sudo dd if=${ANDROID_PRODUCT_OUT}/cache.img of=$CACHE_PART bs=1M status=progress && sync
 if [ $? != 0 ]; then echo "ERROR"; exit; fi
 sudo e2label $CACHE_PART cache
 
